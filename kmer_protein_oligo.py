@@ -12,6 +12,17 @@ def main():
     
 
 
+def add_program_options( option_parser ):
+   option_parser.add_option( '-q', '--query', help = "Fasta query file of sequence to be used by program. [None, Required]"
+   )
+
+   option_parser.add_option( '-w', '--windowSize', type = 'int', \
+                             default = 100, \
+                             help = "Amount of characters from each alignment sequence to look at. [100]"
+   )
+   option_parser.add_option( '-o', '--outPut', default = "oligo_out.txt", help = "Name of file program output will be written to. [oligo_out.txt]"
+   )
+
 
 
 if __name__ == '__main__':
