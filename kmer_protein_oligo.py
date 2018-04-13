@@ -2,6 +2,7 @@
 import optparse
 import sys
 import protein_oligo_library as oligo
+from itertools import izip
 
 
 def main():
@@ -9,8 +10,17 @@ def main():
     option_parser = optparse.OptionParser( usage )
     
     add_program_options( option_parser )
+
+    options, arguments = option_parser.parse_args()
+
+    names, sequences = oligo.read_fasta_lists( options.query )
+    for index in range( len( sequences ) ):
+        sys.setrecursionlimit( len( sequences[ index ] ) + 50 )
+        name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options )
+        sequence = iter( sequence )
+        dict = zip( sequence, iter( options.redundancy ) )
+        print( dict )
     
-    step_size = 1
 
 
 def add_program_options( option_parser ):
