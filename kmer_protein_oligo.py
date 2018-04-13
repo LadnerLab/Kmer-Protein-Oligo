@@ -10,6 +10,7 @@ def main():
     
     add_program_options( option_parser )
     
+    step_size = 1
 
 
 def add_program_options( option_parser ):
@@ -22,6 +23,8 @@ def add_program_options( option_parser ):
    )
    option_parser.add_option( '-o', '--outPut', default = "oligo_out.txt", help = "Name of file program output will be written to. [oligo_out.txt]"
    )
+
+   option_parser.add_option( '-r', '--redundancy', type = 'int', default = 8, help = "A number specifying the redundancy to be used to each kmer [8]" )
 
 
 
