@@ -26,6 +26,12 @@ def add_program_options( option_parser ):
 
    option_parser.add_option( '-r', '--redundancy', type = 'int', default = 8, help = "A number specifying the redundancy to be used to each kmer [8]" )
 
+   option_parser.add_option( '-s', '--stepSize', type = 'int', default = 1, help = (
+      "Step size to move over after each subset of windowSize characters has been read"
+      )
+      )
+ 
+
 
 
 if __name__ == '__main__':
