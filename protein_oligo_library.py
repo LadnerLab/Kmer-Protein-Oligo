@@ -119,6 +119,12 @@ def min_concurrent_chars( test_string, delimeter_char ):
 
 
 def remove_char_from_string( test_string, to_remove ):
+    """
+        Removes character to_remove from string test_string
+        Note: Case sensitive method, 'a' != 'A'
+        Returns:
+           test_string, minus any instance of to_remove character
+    """
     output = ""
     for index in range( len( test_string ) ):
         if test_string[ index ] != to_remove:
@@ -211,6 +217,9 @@ def subset_lists( name, sequence, window_size, step_size ):
    return subset_lists_helper( name, sequence, new_names, new_seqs, window_size, step_size, 0, window_size )
 
 def subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_size, start, end ):
+    """
+        Recursive helper method called by subset_lists
+    """
    if start + window_size < len( sequence ):
        if end > len( sequence ):
           end = len( sequence )
