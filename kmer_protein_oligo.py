@@ -19,10 +19,10 @@ def main():
 
         # We know the recursion is finite becuase the sequence is finite
         sys.setrecursionlimit( len( sequences[ index ] ) + 50 )
-        name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options )
+        name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options.XmerWindowSize, options.stepSize )
 
         for sub_sequence in sequence:
-            if oligo.is_valid_sequence( sub_sequence, options ):
+            if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
                 seq_dict[ sub_sequence ] = options.redundancy
 
 
@@ -49,7 +49,7 @@ def add_program_options( option_parser ):
 
    option_parser.add_option( '-r', '--redundancy', type = 'int', default = 8, help = "A number specifying the redundancy to be used to each kmer [3]" )
 
-   option_parser.add_option( '--StepSize', type = 'int', default = 1, help = (
+   option_parser.add_option( '--stepSize', type = 'int', default = 1, help = (
       "Step size to move over after each subset of windowSize characters has been read"
       )
       )
