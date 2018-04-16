@@ -194,7 +194,7 @@ def append_suffix( string, start, end ):
    return "%s_%s_%s" % ( string, str( start ), str( end ) ) 
 
 
-def subset_lists( name, sequence, window_size ):
+def subset_lists( name, sequence, window_size, step_size ):
    """
        Creates a list of subsets of windowSize size in intervals of stepSize
        Note: Uses recursive subset_lists_helper for operations
@@ -217,7 +217,7 @@ def subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_si
        seq_arr.append( sequence[ start : end ] ) 
        name_arr.append( append_suffix( name, start + 1, end ) )
 
-       subset_lists_helper( name, sequence, name_arr, seq_arr, options, start + step_size, start + step_size + window_size )
+       subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_size, start + step_size, start + step_size + window_size )
    return name_arr, seq_arr
    
 
