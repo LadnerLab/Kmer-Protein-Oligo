@@ -14,7 +14,9 @@ def main():
     options, arguments = option_parser.parse_args()
 
     names, sequences = oligo.read_fasta_lists( options.query )
-    seq_dict = {}
+    xmer_seq_dict = {}
+
+    # create list of Xmer sequences
     for index in range( len( sequences ) ):
 
         # We know the recursion is finite becuase the sequence is finite
@@ -23,11 +25,28 @@ def main():
 
         for sub_sequence in sequence:
             if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
-                seq_dict[ sub_sequence ] = options.redundancy
+                xmer_seq_dict[ sub_sequence ] = options.redundancy
 
 
-    print( seq_dict )
+    ymer_seq_dict = {}
+
+    # create list of Ymer sequences
+    for index in range( len( sequences ) ):
+
+        # We know the recursion is finite becuase the sequence is finite
+        sys.setrecursionlimit( len( sequences[ index ] ) + 50 )
+        name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
+
+        for sub_sequence in sequence:
+            if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
+                ymer_seq_dict[ sub_sequence ] = options.redundancy
+    print( ymer_seq_dict )
+
+
+
+
     
+     
 
 
 def add_program_options( option_parser ):
