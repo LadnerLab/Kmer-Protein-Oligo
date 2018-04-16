@@ -166,7 +166,7 @@ def create_valid_sequence_list( names_list, sequence_list, options, start, end )
 
       if is_valid_sequence( current_sequence, options ):
            valid_names.append( names_list[ sequence ] )
-           current_sequence = oligo.remove_char_from_string( current_sequence, '-' )
+           current_sequence = remove_char_from_string( current_sequence, '-' )
            valid_sequences.append( current_sequence[ start : end ] )
 
    names_list = append_suffix( valid_names, start, end )
@@ -179,11 +179,11 @@ def is_valid_sequence( sequence, options ):
        A valid sequence is defined by not having any 'X' characters,
            and not violating the parameters of either options.outPut or options.percentValid
    """
-   if not oligo.char_in_string( sequence, 'X' ):
+   if not char_in_string( sequence, 'X' ):
        if options.minLength is None:
-           return oligo.percentage_of_char_in_string( sequence, '-' ) < ( 100 - options.percentValid )
+           return percentage_of_char_in_string( sequence, '-' ) < ( 100 - options.percentValid )
        else:
-           return ( oligo.min_concurrent_chars( sequence, '-' ) >= options.minLength )
+           return ( min_concurrent_chars( sequence, '-' ) >= options.minLength )
    return False
 
          
@@ -211,7 +211,7 @@ def subset_lists( name, sequence, options ):
    return subset_lists_helper( name, sequence, new_names, new_seqs, options, 0, options.windowSize )
 
 def subset_lists_helper( name, sequence, name_arr, seq_arr, options, start, end ):
-   if start < len( sequence ):
+   if start + options.windowSize < len( sequence ):
        if end > len( sequence ):
           end = len( sequence )
        seq_arr.append( sequence[ start : end ] ) 
