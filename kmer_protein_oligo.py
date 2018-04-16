@@ -13,6 +13,7 @@ def main():
     options, arguments = option_parser.parse_args()
 
     names, sequences = oligo.read_fasta_lists( options.query )
+
     xmer_seq_dict = {}
 
     # create list of Xmer sequences
@@ -40,8 +41,20 @@ def main():
             if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
                 ymer_seq_set.add( sub_sequence )
 
+    # Break each ymer up into subsets of xmer size
+    array_design = []
+    max_score = 0
+
+    for current_ymer in ymer_seq_set:
+        # calculate the score of this ymer
+        score = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
+        print( score )
 
 
+def calculate_score( ymer, comparison_dict, window_size, step_size ):
+    name, subset_ymer = oligo.subset_lists( "", ymer, window_size, step_size )
+    return sum( comparison_dict[ current_ymer ] for current_ymer in subset_ymer if current_ymer in comparison_dict )
+    
 
     
      
