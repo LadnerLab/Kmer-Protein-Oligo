@@ -14,12 +14,19 @@ def main():
     options, arguments = option_parser.parse_args()
 
     names, sequences = oligo.read_fasta_lists( options.query )
+    seq_dict = {}
     for index in range( len( sequences ) ):
+
+        # We know the recursion is finite
         sys.setrecursionlimit( len( sequences[ index ] ) + 50 )
         name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options )
-        sequence = iter( sequence )
-        dict = zip( sequence, iter( options.redundancy ) )
-        print( dict )
+
+        for sub_sequence in sequence:
+            if oligo.is_valid_sequence( sub_sequence, options ):
+                seq_dict[ sub_sequence ] = options.redundancy
+
+
+    print( seq_dict )
     
 
 
@@ -40,6 +47,18 @@ def add_program_options( option_parser ):
       "Step size to move over after each subset of windowSize characters has been read"
       )
       )
+   option_parser.add_option( '-l', '--minLength', type = 'int', help = (
+      "Minimum length of concurrent non-dash characters that must be present in order for "
+      "the sequence to be considered valid, sequences with a maximum length of concurrent non-dash "
+      "characters less than this parameter will not be included in program output. [None, Required] "
+   )
+   )
+   option_parser.add_option( '-p', '--percentValid', type = 'float', default = 90.0, help = (
+      "Percent of non '-' characters present in order for the sequence to be considered valid, "  
+      "sequences with less than specified amount will not be present in program out put. [90.00] "
+   )
+   )
+ 
  
 
 
