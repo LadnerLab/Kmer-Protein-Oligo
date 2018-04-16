@@ -9,7 +9,6 @@ def read_fasta_lists( file_to_read ):
         sequences- a list of the sequences found in the fasta file
     """
 
-
     file_in = open( file_to_read, 'r' )
     count = 0
 
@@ -36,7 +35,7 @@ def read_fasta_lists( file_to_read ):
  
 def write_fastas( names_list, sequence_list, output_name="out.txt" ):
     """
-        Writes a fast file from a list of names an dsequences to output file provided
+        Writes a fasta file from a list of names and sequences to output file provided
 
     """
     out_file = open( output_name, 'w+' )
@@ -220,14 +219,14 @@ def subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_si
     """
         Recursive helper method called by subset_lists
     """
-   if start + window_size < len( sequence ):
+    if start + window_size < len( sequence ):
        if end > len( sequence ):
-          end = len( sequence )
+           end = len( sequence )
        seq_arr.append( sequence[ start : end ] ) 
        name_arr.append( append_suffix( name, start + 1, end ) )
 
        subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_size, start + step_size, start + step_size + window_size )
-   return name_arr, seq_arr
+    return name_arr, seq_arr
    
 
 
