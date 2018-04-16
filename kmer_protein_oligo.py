@@ -2,7 +2,6 @@
 import optparse
 import sys
 import protein_oligo_library as oligo
-from itertools import izip
 
 
 def main():
