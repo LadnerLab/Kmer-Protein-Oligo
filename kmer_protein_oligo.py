@@ -27,9 +27,9 @@ def main():
                 xmer_seq_dict[ sub_sequence ] = options.redundancy
 
 
-    ymer_seq_dict = {}
+    ymer_seq_set = set()
 
-    # create list of Ymer sequences
+    # create set of Ymer sequences
     for index in range( len( sequences ) ):
 
         # We know the recursion is finite becuase the sequence is finite
@@ -38,8 +38,7 @@ def main():
 
         for sub_sequence in sequence:
             if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
-                ymer_seq_dict[ sub_sequence ] = options.redundancy
-    print( ymer_seq_dict )
+                ymer_seq_set.add( sub_sequence )
 
 
 
