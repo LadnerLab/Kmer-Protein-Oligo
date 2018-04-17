@@ -63,6 +63,9 @@ def main():
             for item in subset_ymer:
                 if item in xmer_seq_dict:
                     xmer_seq_dict[ item ] -= 1
+                    # Make sure the keys can't get below 1
+                    if xmer_seq_dict[ item ] < 0:
+                        xmer_seq_dict[ item ] = 0
 
         oligo_to_remove = random.choice( to_add )
 
@@ -74,10 +77,12 @@ def main():
     print( array_design )
 
 
+
 def calculate_score( ymer, comparison_dict, window_size, step_size ):
-    name, subset_ymer = oligo.subset_lists( "", ymer, window_size, step_size )
+    name, subset_ymer = oligo.subset_lists_iter( "", ymer, window_size, step_size )
     return sum( comparison_dict[ current_ymer ] for current_ymer in subset_ymer if current_ymer in comparison_dict ), subset_ymer
     
+
 
     
      
