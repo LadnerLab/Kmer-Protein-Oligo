@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 import optparse
-import types
 import sys
 import protein_oligo_library as oligo
 import random
@@ -32,6 +31,7 @@ def main():
     # create dict of Ymer sequences
     ymer_seq_dict = {} 
 
+    # Break each ymer up into subsets of xmer size
     for index in range( len( sequences ) ):
 
         name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
@@ -40,7 +40,6 @@ def main():
             if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
                 ymer_seq_dict[ sequence[ index ] ] = name[ index ]
 
-    # Break each ymer up into subsets of xmer size
     array_design = {}
     max_score = 0
     to_add = []
@@ -61,13 +60,17 @@ def main():
             # subtract from the score of each ymer
             for item in subset_ymer:
                 if item in xmer_seq_dict:
+                    # We dont' want negative scores
                     if xmer_seq_dict[ item ][ 0 ] > 0:
                         xmer_seq_dict[ item ][ 0 ] -= 1
 
         oligo_to_remove = random.choice( to_add )
 
         array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
-        del ymer_seq_dict[ current_ymer ]
+        try:
+            del ymer_seq_dict[ current_ymer ]
+        except KeyError:
+            continue
 
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
             break
