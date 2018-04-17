@@ -29,16 +29,16 @@ def main():
                 xmer_seq_dict[ sequence[ index ] ] = value
 
 
-    ymer_seq_set = set()
+    # create dict of Ymer sequences
+    ymer_seq_dict = {} 
 
-    # create set of Ymer sequences
     for index in range( len( sequences ) ):
 
         name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
 
-        for sub_sequence in sequence:
-            if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
-                ymer_seq_set.add( sub_sequence )
+        for index in range( len( sequence ) ):
+            if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
+                ymer_seq_dict[ sequence[ index ] ] = name[ index ]
 
     # Break each ymer up into subsets of xmer size
     array_design = {}
@@ -47,7 +47,7 @@ def main():
 
     while True:
 
-        for current_ymer in ymer_seq_set: 
+        for current_ymer in ymer_seq_dict.keys(): 
             # calculate the score of this ymer
             score, subset_ymer = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
             
@@ -66,10 +66,10 @@ def main():
 
         oligo_to_remove = random.choice( to_add )
 
-        # array_design[ oligo_to_remove ] = xmer_seq_dict[ oligo_to_remove ][ 1 ]
-        ymer_seq_set.remove( current_ymer )
+        array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
+        del ymer_seq_dict[ current_ymer ]
 
-        if len( ymer_seq_set ) == 0 or max_score <= 0:
+        if len( ymer_seq_dict ) == 0 or max_score <= 0:
             break
 
     print( array_design )
