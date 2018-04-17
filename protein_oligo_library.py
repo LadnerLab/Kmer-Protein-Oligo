@@ -199,6 +199,21 @@ def append_suffix( string, start, end ):
    return "%s_%s_%s" % ( string, str( start ), str( end ) ) 
 
 
+def subset_lists_iter( name, sequence, window_size, step_size ):
+    new_names = []
+    new_seqs = []
+
+    start = 0
+    end = window_size
+    while end < len( sequence ):
+       new_seqs.append( sequence[ start : end ] )
+       new_names.append( append_suffix( name, start + 1, end ) )
+
+       start += step_size
+       end += start + step_size + window_size
+
+    return new_names, new_seqs
+
 def subset_lists( name, sequence, window_size, step_size ):
    """
        Creates a list of subsets of windowSize size in intervals of stepSize
@@ -220,8 +235,8 @@ def subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_si
         Recursive helper method called by subset_lists
     """
     if start + window_size < len( sequence ):
-       if end > len( sequence ):
-           end = len( sequence )
+       if len( sequence[ start: end ] ) == 1:
+           return
        seq_arr.append( sequence[ start : end ] ) 
        name_arr.append( append_suffix( name, start + 1, end ) )
 
