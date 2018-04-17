@@ -20,9 +20,7 @@ def main():
     # create list of Xmer sequences
     for index in range( len( sequences ) ):
 
-        # We know the recursion is finite becuase the sequence is finite
-        sys.setrecursionlimit( len( sequences[ index ] ) + 50 )
-        name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options.XmerWindowSize, options.stepSize )
+        name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.XmerWindowSize, options.stepSize )
 
         for sub_sequence in sequence:
             if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
@@ -74,14 +72,27 @@ def main():
 
         if len( ymer_seq_set ) == 0 or max_score <= 0:
             break
-    print( array_design )
 
+    write_outputs( xmer_seq_dict, options.outPut )
 
 
 def calculate_score( ymer, comparison_dict, window_size, step_size ):
+    """
+        Calculates the score of a ymer
+    """
     name, subset_ymer = oligo.subset_lists_iter( "", ymer, window_size, step_size )
     return sum( comparison_dict[ current_ymer ] for current_ymer in subset_ymer if current_ymer in comparison_dict ), subset_ymer
     
+def write_outputs( seq_dict, out_file ):
+    """
+        Writes tab delimited key-value pairs to specified output file
+        Each line consists of key \t value  
+    """
+    file = open( out_file, 'w+' )
+    for xmer, score in seq_dict.items():
+        file.write( xmer + '\t' + str( score ) + '\n' )
+    file.close()
+                
 
 
     
