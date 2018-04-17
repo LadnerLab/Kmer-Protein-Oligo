@@ -41,7 +41,7 @@ def main():
                 ymer_seq_set.add( sub_sequence )
 
     # Break each ymer up into subsets of xmer size
-    array_design = []
+    array_design = {}
     max_score = 0
     to_add = []
 
@@ -53,26 +53,26 @@ def main():
             
             if score > max_score:
                 max_score = score
-                to_add = list( current_ymer )
+                to_add = list()
+                to_add.append( current_ymer )
             elif score == max_score:
                 to_add.append( current_ymer )
     
             # subtract from the score of each ymer
             for item in subset_ymer:
-                if item in xmer_seq_dict and isinstance( item, list ):
-                    xmer_seq_dict[ item ][ 0 ] -= 1
-                    # Make sure the keys can't get below 1
-                    if xmer_seq_dict[ item ][ 0 ] < 0:
-                        xmer_seq_dict[ item ] = 0
+                if item in xmer_seq_dict:
+                    if xmer_seq_dict[ item ][ 0 ] > 0:
+                        xmer_seq_dict[ item ][ 0 ] -= 1
 
         oligo_to_remove = random.choice( to_add )
 
-        array_design.append( oligo_to_remove )
+        # array_design[ oligo_to_remove ] = xmer_seq_dict[ oligo_to_remove ][ 1 ]
         ymer_seq_set.remove( current_ymer )
 
         if len( ymer_seq_set ) == 0 or max_score <= 0:
             break
 
+    print( array_design )
     write_outputs( xmer_seq_dict, options.outPut )
 
 
