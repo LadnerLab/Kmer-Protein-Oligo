@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import optparse
+import types
 import sys
 import protein_oligo_library as oligo
 import random
@@ -22,9 +23,10 @@ def main():
 
         name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.XmerWindowSize, options.stepSize )
 
-        for sub_sequence in sequence:
-            if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
-                xmer_seq_dict[ sub_sequence ] = options.redundancy
+        for index in range( len( sequence ) ):
+            if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
+                value = [ options.redundancy, name[ index ] ]
+                xmer_seq_dict[ sequence[ index ] ] = value
 
 
     ymer_seq_set = set()
@@ -32,9 +34,7 @@ def main():
     # create set of Ymer sequences
     for index in range( len( sequences ) ):
 
-        # We know the recursion is finite becuase the sequence is finite
-        sys.setrecursionlimit( len( sequences[ index ] ) + 50 )
-        name, sequence = oligo.subset_lists( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
+        name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
 
         for sub_sequence in sequence:
             if oligo.is_valid_sequence( sub_sequence, options.minLength, options.percentValid ):
@@ -59,10 +59,10 @@ def main():
     
             # subtract from the score of each ymer
             for item in subset_ymer:
-                if item in xmer_seq_dict:
-                    xmer_seq_dict[ item ] -= 1
+                if item in xmer_seq_dict and isinstance( item, list ):
+                    xmer_seq_dict[ item ][ 0 ] -= 1
                     # Make sure the keys can't get below 1
-                    if xmer_seq_dict[ item ] < 0:
+                    if xmer_seq_dict[ item ][ 0 ] < 0:
                         xmer_seq_dict[ item ] = 0
 
         oligo_to_remove = random.choice( to_add )
@@ -81,7 +81,12 @@ def calculate_score( ymer, comparison_dict, window_size, step_size ):
         Calculates the score of a ymer
     """
     name, subset_ymer = oligo.subset_lists_iter( "", ymer, window_size, step_size )
-    return sum( comparison_dict[ current_ymer ] for current_ymer in subset_ymer if current_ymer in comparison_dict ), subset_ymer
+    total = 0
+    for current_ymer in subset_ymer:
+       if current_ymer in comparison_dict and isinstance( comparison_dict[ current_ymer ], list ):
+           total +=  comparison_dict[ current_ymer ][ 0 ] 
+    # return sum( comparison_dict[ current_ymer ][ 0 ] for current_ymer in subset_ymer if current_ymer in comparison_dict ), subset_ymer
+    return total, subset_ymer
     
 def write_outputs( seq_dict, out_file ):
     """
@@ -90,7 +95,7 @@ def write_outputs( seq_dict, out_file ):
     """
     file = open( out_file, 'w+' )
     for xmer, score in seq_dict.items():
-        file.write( xmer + '\t' + str( score ) + '\n' )
+        file.write( xmer + '\t' + str( score[ 0 ] ) + '\n' )
     file.close()
                 
 
