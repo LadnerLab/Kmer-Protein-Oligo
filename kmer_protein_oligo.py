@@ -66,8 +66,8 @@ def main():
 
         oligo_to_remove = random.choice( to_add )
 
-        array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
         try:
+            array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
             del ymer_seq_dict[ current_ymer ]
         except KeyError:
             continue
