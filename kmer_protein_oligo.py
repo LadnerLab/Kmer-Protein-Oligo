@@ -48,28 +48,30 @@ def main():
     to_add = []
 
     while True:
-        # Grab a random ymer from the set
-        current_ymer = random.sample( ymer_seq_set, 1 )[ 0 ]
 
-        # calculate the score of this ymer
-        score, subset_ymer = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
-        
-        if score > max_score:
-            max_score = score
-            to_add.append( current_ymer )
-        elif score == max_score:
-            to_add.append( current_ymer )
+        for current_ymer in ymer_seq_set: 
+            # calculate the score of this ymer
+            score, subset_ymer = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
+            
+            if score > max_score:
+                max_score = score
+                to_add = list( current_ymer )
+            elif score == max_score:
+                to_add.append( current_ymer )
+    
+            # subtract from the score of each ymer
+            for item in subset_ymer:
+                if item in xmer_seq_dict:
+                    xmer_seq_dict[ item ] -= 1
 
-        for item in subset_ymer:
-            if item in xmer_seq_dict:
-                xmer_seq_dict[ item ] -= 1
+        oligo_to_remove = random.choice( to_add )
 
-        oligo_to_remove = random.choice( subset_ymer )
         array_design.append( oligo_to_remove )
         ymer_seq_set.remove( current_ymer )
 
-        if len( ymer_seq_set ) == 0 or max_score == 0:
+        if len( ymer_seq_set ) == 0 or max_score <= 0:
             break
+    print( array_design )
 
 
 def calculate_score( ymer, comparison_dict, window_size, step_size ):
