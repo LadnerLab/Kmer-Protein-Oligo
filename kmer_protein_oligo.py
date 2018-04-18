@@ -146,10 +146,10 @@ def add_program_options( option_parser ):
    option_parser.add_option( '-o', '--outPut', default = "oligo_out.txt", help = "Name of file program output will be written to. [oligo_out.txt]"
    )
 
-   option_parser.add_option( '-r', '--redundancy', type = 'int', default = 8, help = "A number specifying the redundancy to be used to each kmer [3]" )
+   option_parser.add_option( '-r', '--redundancy', type = 'int', default = 3, help = "A number specifying the redundancy to be used to each kmer [3]" )
 
    option_parser.add_option( '--stepSize', type = 'int', default = 1, help = (
-      "Step size to move over after each subset of windowSize characters has been read"
+      "Step size to move over after each subset of windowSize characters has been read [1]"
       )
       )
    option_parser.add_option( '-l', '--minLength', type = 'int', help = (
