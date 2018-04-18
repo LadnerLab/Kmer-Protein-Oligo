@@ -75,8 +75,17 @@ def main():
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
             break
 
-    print( array_design )
     write_outputs( xmer_seq_dict, options.outPut )
+
+    names = []
+    sequences = []
+
+    # Write resulting oligos to file
+    for sequence, name in array_design.items():
+        names.append( names )
+        sequences.append( sequence )
+
+    oligo.write_fastas( names, sequences ) 
 
 
 def calculate_score( ymer, comparison_dict, window_size, step_size ):
