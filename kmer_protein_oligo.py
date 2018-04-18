@@ -83,7 +83,6 @@ def main():
             array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
             del ymer_seq_dict[ oligo_to_remove ]
         except KeyError:
-            print( "KEYERROR" )
             continue
 
 
@@ -98,7 +97,7 @@ def main():
         names.append( name )
         sequences.append( sequence )
 
-    oligo.write_fastas( names, sequences ) 
+    oligo.write_fastas( names, sequences, output_name=options.outPut + "_Redundancy" + str( options.redundancy ) ) 
 
 
 def calculate_score( ymer, comparison_dict, window_size, step_size ):
