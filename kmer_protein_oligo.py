@@ -44,15 +44,18 @@ def main():
     max_score = 0
     to_add = []
 
+    iter_count = 0
+
     while True:
 
         for current_ymer in ymer_seq_dict.keys(): 
             # calculate the score of this ymer
+            max_score = 0
             score, subset_ymer = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
             
             if score > max_score:
-                max_score = score
                 to_add = list()
+                max_score = score
                 to_add.append( current_ymer )
             elif score == max_score:
                 to_add.append( current_ymer )
@@ -66,14 +69,24 @@ def main():
 
         oligo_to_remove = random.choice( to_add )
 
+        iter_count += 1
+
+        if len( ymer_seq_dict ) == 0 or max_score <= 0:
+            break
+
+        if not iter_count % 100:
+            print( "Current Iteration: " + str( iter_count ) ) 
+            print( "Number of output ymers: " + str( len( array_design ) ) )
+            print( "Current xmer dictionary score: " + str( sum( item[ 0 ] for item in xmer_seq_dict.values() ) ) )
+
         try:
             array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
             del ymer_seq_dict[ oligo_to_remove ]
         except KeyError:
+            print( "KEYERROR" )
             continue
 
-        if len( ymer_seq_dict ) == 0 or max_score <= 0:
-            break
+
 
     write_outputs( xmer_seq_dict, options.outPut )
 
