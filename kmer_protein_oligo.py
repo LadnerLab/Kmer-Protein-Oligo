@@ -57,18 +57,18 @@ def main():
             elif score == max_score:
                 to_add.append( current_ymer )
     
-            # subtract from the score of each ymer
-            for item in subset_ymer:
-                if item in xmer_seq_dict:
-                    # We dont' want negative scores
-                    if xmer_seq_dict[ item ][ 0 ] > 0:
-                        xmer_seq_dict[ item ][ 0 ] -= 1
+        # subtract from the score of each ymer
+        for item in subset_ymer:
+            if item in xmer_seq_dict:
+                # We dont' want negative scores
+                if xmer_seq_dict[ item ][ 0 ] > 0:
+                    xmer_seq_dict[ item ][ 0 ] -= 1
 
         oligo_to_remove = random.choice( to_add )
 
         try:
             array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
-            del ymer_seq_dict[ current_ymer ]
+            del ymer_seq_dict[ oligo_to_remove ]
         except KeyError:
             continue
 
@@ -82,7 +82,7 @@ def main():
 
     # Write resulting oligos to file
     for sequence, name in array_design.items():
-        names.append( names )
+        names.append( name )
         sequences.append( sequence )
 
     oligo.write_fastas( names, sequences ) 
