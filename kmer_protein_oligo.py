@@ -27,7 +27,6 @@ def main():
                 value = [ options.redundancy, name[ index ] ]
                 xmer_seq_dict[ sequence[ index ] ] = value
 
-
     # create dict of Ymer sequences
     ymer_seq_dict = {} 
 
@@ -41,36 +40,42 @@ def main():
                 ymer_seq_dict[ sequence[ index ] ] = name[ index ]
 
     array_design = {}
-    max_score = 0
     to_add = []
-
+    ymer_xmers = []
     iter_count = 0
 
     while True:
-
+        #reset max score at the beginning of each iteration
+        max_score = 0
         for current_ymer in ymer_seq_dict.keys(): 
             # calculate the score of this ymer
-            max_score = 0
             score, subset_ymer = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
             
             if score > max_score:
                 to_add = list()
                 max_score = score
                 to_add.append( current_ymer )
+                ymer_xmers = [subset_ymer]
             elif score == max_score:
                 to_add.append( current_ymer )
-    
-        # subtract from the score of each ymer
-        for item in subset_ymer:
+                ymer_xmers.append(subset_ymer)
+
+        random_index = random.choice(range(len(to_add)))
+        oligo_to_remove = to_add[random_index]
+        chosen_xmers = ymer_xmers[random_index]
+
+        # subtract from the score of each xmer within the chosen ymer
+        print chosen_xmers
+        for item in chosen_xmers:
             if item in xmer_seq_dict:
                 # We dont' want negative scores
                 if xmer_seq_dict[ item ][ 0 ] > 0:
                     xmer_seq_dict[ item ][ 0 ] -= 1
-
-        oligo_to_remove = random.choice( to_add )
+            else: print "%s - not found in xmer dict!!!" % (item)
 
         iter_count += 1
 
+        print max_score
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
             break
 
@@ -84,7 +89,6 @@ def main():
             del ymer_seq_dict[ oligo_to_remove ]
         except KeyError:
             continue
-
 
 
     write_outputs( xmer_seq_dict, options.outPut )
