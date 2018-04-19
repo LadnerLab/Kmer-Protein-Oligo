@@ -65,7 +65,6 @@ def main():
         chosen_xmers = ymer_xmers[ random_index ]
 
         # subtract from the score of each xmer within the chosen ymer
-        print chosen_xmers
         for item in chosen_xmers:
             if item in xmer_seq_dict:
                 # We dont' want negative scores
@@ -75,7 +74,6 @@ def main():
 
         iter_count += 1
 
-        print max_score
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
             break
 
