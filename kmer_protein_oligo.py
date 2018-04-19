@@ -60,9 +60,9 @@ def main():
                 to_add.append( current_ymer )
                 ymer_xmers.append(subset_ymer)
 
-        random_index = random.choice(range(len(to_add)))
-        oligo_to_remove = to_add[random_index]
-        chosen_xmers = ymer_xmers[random_index]
+        random_index = random.choice( range( len( to_add ) ) )
+        oligo_to_remove = to_add[ random_index ]
+        chosen_xmers = ymer_xmers[ random_index ]
 
         # subtract from the score of each xmer within the chosen ymer
         print chosen_xmers
@@ -113,7 +113,6 @@ def calculate_score( ymer, comparison_dict, window_size, step_size ):
     for current_ymer in subset_ymer:
        if current_ymer in comparison_dict and isinstance( comparison_dict[ current_ymer ], list ):
            total +=  comparison_dict[ current_ymer ][ 0 ] 
-    # return sum( comparison_dict[ current_ymer ][ 0 ] for current_ymer in subset_ymer if current_ymer in comparison_dict ), subset_ymer
     return total, subset_ymer
     
 def write_outputs( seq_dict, out_file ):
