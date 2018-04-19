@@ -39,6 +39,8 @@ def main():
             if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
                 ymer_seq_dict[ sequence[ index ] ] = name[ index ]
 
+    total_ymers = len(ymer_seq_dict)
+
     array_design = {}
     to_add = []
     ymer_xmers = []
@@ -75,18 +77,21 @@ def main():
         iter_count += 1
 
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
+            print "Final design includes %d %d-mers (%.1f%% of total) " % (len(array_design), options.YmerWindowSize, (len(array_design)/float(total_ymers))*100)  
+            ##!!!!! Insert another print line, like above that summarize 1) the total # of xmers in the output ymers, 2) the % of the total xmers this represents and 3) the average redundancy across all the xmers
             break
-
-        if not iter_count % 100:
-            print( "Current Iteration: " + str( iter_count ) ) 
-            print( "Number of output ymers: " + str( len( array_design ) ) )
-            print( "Current xmer dictionary score: " + str( sum( item[ 0 ] for item in xmer_seq_dict.values() ) ) )
 
         try:
             array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
             del ymer_seq_dict[ oligo_to_remove ]
         except KeyError:
             continue
+
+        if not iter_count % 100:
+            print( "Current Iteration: " + str( iter_count ) ) 
+            print( "Number of output ymers: " + str( len( array_design ) ) )
+            print( "Current xmer dictionary score: " + str( sum( item[ 0 ] for item in xmer_seq_dict.values() ) ) )
+
 
 
     write_outputs( xmer_seq_dict, options.outPut )
@@ -99,7 +104,7 @@ def main():
         names.append( name )
         sequences.append( sequence )
 
-    oligo.write_fastas( names, sequences, output_name=options.outPut + "_Redundancy" + str( options.redundancy ) ) 
+    oligo.write_fastas( names, sequences, output_name=options.outPut + "_R" + str( options.redundancy ) + ".fasta" ) 
 
 
 def calculate_score( ymer, comparison_dict, window_size, step_size ):
