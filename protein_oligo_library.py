@@ -210,7 +210,7 @@ def subset_lists_iter( name, sequence, window_size, step_size ):
        new_names.append( append_suffix( name, start + 1, end ) )
 
        start += step_size
-       end = start + step_size + window_size
+       end = start + step_size + window_size - 1
 
     return new_names, new_seqs
 
