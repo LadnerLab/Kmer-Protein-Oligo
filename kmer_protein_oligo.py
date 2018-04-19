@@ -44,6 +44,7 @@ def main():
     total_ymers = len(ymer_seq_dict)
 
     array_design = {}
+    array_xmers = {}
     to_add = []
     ymer_xmers = []
     iter_count = 0
@@ -67,6 +68,9 @@ def main():
         random_index = random.choice( range( len( to_add ) ) )
         oligo_to_remove = to_add[ random_index ]
         chosen_xmers = ymer_xmers[ random_index ]
+#        array_xmers.update(chosen_xmers)
+        for each in chosen_xmers:
+            array_xmers[each] = array_xmers.get(each, 0)+1
 
         # subtract from the score of each xmer within the chosen ymer
         for item in chosen_xmers:
@@ -80,16 +84,9 @@ def main():
 
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
             print ( "Final design includes %d %d-mers (%.1f%% of total) " % (len(array_design), options.YmerWindowSize, (len(array_design)/float(total_ymers))*100) )
-            ##!!!!! Insert another print line, like above that summarize 1) the total # of xmers in the output ymers, 2) the % of the total xmers this represents and 3) the average redundancy across all the xmers
-            # Number of xmers in output Ymers
-            num_xmers = ( options.YmerWindowSize - options.XmerWindowSize + 1 ) * len( array_design )
-            percent_total_xmers = ( num_xmers / len( xmer_seq_dict ) ) * 100
-            average_redundancy = sum( xmer_seq_dict[ item ][ 0 ] for item in xmer_seq_dict ) / len( xmer_seq_dict )
-            
-            print( "Number of Xmers in Output Ymers: " + str( num_xmers ) )
-            print( "Percent of xmers represented in output Ymers: " + str( percent_total_xmers ) )
-            print( "Average redundancy of all Xmers: " + str( average_redundancy ) )
-            
+#            average_redundancy = sum( xmer_seq_dict[ item ][ 0 ] for item in xmer_seq_dict ) / len( xmer_seq_dict )
+            print( "%d unique %d-mers in final %d-mers (%.2f%% of total)" % (len(array_xmers), options.XmerWindowSize, options.YmerWindowSize, (float(len(array_xmers))/len(xmer_seq_dict))*100))
+            print( "Average redundancy of %d-mers in %d-mers: %.2f" % (options.XmerWindowSize, options.YmerWindowSize, sum(array_xmers.values())/float(len(array_xmers))))
 
             break
         
@@ -102,7 +99,7 @@ def main():
 
         if not iter_count % 100:
             print( "Current Iteration: " + str( iter_count ) ) 
-            print( "Number of output ymers: " + str( len( array_design ) ) )
+#            print( "Number of output ymers: " + str( len( array_design ) ) )
             print( "Current xmer dictionary score: " + str( sum( item[ 0 ] for item in xmer_seq_dict.values() ) ) )
 
 
