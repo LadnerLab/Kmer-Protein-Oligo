@@ -205,8 +205,7 @@ def subset_lists_iter( name, sequence, window_size, step_size ):
 
     start = 0
     end = window_size
-    if sequence[ start : end ] == "DTEVEVPQ":
-        print( "FOUND IT" )
+
     while end <= len( sequence ):
        new_seqs.append( sequence[ start : end ] )
        new_names.append( append_suffix( name, start + 1, end ) )
