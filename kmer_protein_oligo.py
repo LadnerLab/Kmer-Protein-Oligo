@@ -35,6 +35,7 @@ def main():
 
         name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
 
+
         for index in range( len( sequence ) ):
 
             if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
@@ -80,7 +81,18 @@ def main():
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
             print ( "Final design includes %d %d-mers (%.1f%% of total) " % (len(array_design), options.YmerWindowSize, (len(array_design)/float(total_ymers))*100) )
             ##!!!!! Insert another print line, like above that summarize 1) the total # of xmers in the output ymers, 2) the % of the total xmers this represents and 3) the average redundancy across all the xmers
+            # Number of xmers in output Ymers
+            num_xmers = ( options.YmerWindowSize - options.XmerWindowSize + 1 ) * len( array_design )
+            percent_total_xmers = ( num_xmers / len( xmer_seq_dict ) ) * 100
+            average_redundancy = sum( xmer_seq_dict[ item ][ 0 ] for item in xmer_seq_dict ) / len( xmer_seq_dict )
+            
+            print( "Number of Xmers in Output Ymers: " + str( num_xmers ) )
+            print( "Percent of xmers represented in output Ymers: " + str( percent_total_xmers ) )
+            print( "Average redundancy of all Xmers: " + str( average_redundancy ) )
+            
+
             break
+        
 
         try:
             array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
