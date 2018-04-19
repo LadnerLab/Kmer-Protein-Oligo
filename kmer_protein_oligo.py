@@ -36,6 +36,7 @@ def main():
         name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
 
         for index in range( len( sequence ) ):
+
             if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
                 ymer_seq_dict[ sequence[ index ] ] = name[ index ]
 
@@ -69,15 +70,15 @@ def main():
         # subtract from the score of each xmer within the chosen ymer
         for item in chosen_xmers:
             if item in xmer_seq_dict:
-                # We dont' want negative scores
+            # We dont' want negative scores
                 if xmer_seq_dict[ item ][ 0 ] > 0:
                     xmer_seq_dict[ item ][ 0 ] -= 1
-            else: print "%s - not found in xmer dict!!!" % (item)
+            else: print ( "%s - not found in xmer dict!!!" % (item) )
 
         iter_count += 1
 
         if len( ymer_seq_dict ) == 0 or max_score <= 0:
-            print "Final design includes %d %d-mers (%.1f%% of total) " % (len(array_design), options.YmerWindowSize, (len(array_design)/float(total_ymers))*100)  
+            print ( "Final design includes %d %d-mers (%.1f%% of total) " % (len(array_design), options.YmerWindowSize, (len(array_design)/float(total_ymers))*100) )
             ##!!!!! Insert another print line, like above that summarize 1) the total # of xmers in the output ymers, 2) the % of the total xmers this represents and 3) the average redundancy across all the xmers
             break
 
