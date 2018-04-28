@@ -19,78 +19,63 @@ def main():
 
     for i in range(options.iterations): 
 
+        #Values are now all of the locations of the xmer in the input seqs
         xmer_seq_dict = {}
 
         # create list of Xmer sequences
-        for index in range( len( sequences ) ):
+        for i in range( len( sequences ) ):
+            xdict = oligo.subset_lists_iter( i, sequences[i], options.XmerWindowSize, options.stepSize )
+            for x, locs in xdict.iteritems():
+                #????? Is it appropraite to use the same minLength and percentValid for xmers and ymers????
+                if oligo.is_valid_sequence( x, options.minLength, options.percentValid ):
+                    if x in xmer_seq_dict: 
+                        xmer_seq_dict[x].update(locs)
+                    else: xmer_seq_dict[x] = set(locs)
 
-            name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.XmerWindowSize, options.stepSize )
-
-            for index in range( len( sequence ) ):
-                if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
-                    value = [ options.redundancy, name[ index ] ]
-                    xmer_seq_dict[ sequence[ index ] ] = value
+        print "xmer_dict done!"
 
         # create dict of Ymer sequences
-        ymer_seq_dict = {} 
+        ymer_name_dict = {} 
+        ymer_loc_dict = {} 
 
-        # Break each ymer up into subsets of xmer size
-        for index in range( len( sequences ) ):
+        # Break each sequence up into ymers
+        for i in range(len(sequences)):
+            ydict = oligo.subset_lists_iter( names[i], sequences[i], options.YmerWindowSize, options.stepSize )
 
-            name, sequence = oligo.subset_lists_iter( names[ index ], sequences[ index ], options.YmerWindowSize, options.stepSize )
+            #For each ymer, break into xmers and record locations of those ymers
+            for y, locs in ydict.iteritems():
+                if y not in ymer_loc_dict and oligo.is_valid_sequence( y, options.minLength, options.percentValid ):
+                    ymer_name_dict[y] = locs[0]
+                    ymer_loc_dict[y] = oligo.component_xmer_locs(y, xmer_seq_dict, options.XmerWindowSize, options.stepSize)
 
-
-            for index in range( len( sequence ) ):
-
-                if oligo.is_valid_sequence( sequence[ index ], options.minLength, options.percentValid ):
-                    ymer_seq_dict[ sequence[ index ] ] = name[ index ]
-
-        total_ymers = len(ymer_seq_dict)
+        print "ymer_dict done!"
 
         array_design = {}
         array_xmers = {}
         to_add = []
-        ymer_xmers = []
         iter_count = 0
 
         while True:
             #reset max score at the beginning of each iteration
             max_score = 0
-            for current_ymer in ymer_seq_dict.keys(): 
-                # calculate the score of this ymer
-                score, subset_ymer = calculate_score( current_ymer, xmer_seq_dict, options.XmerWindowSize, 1 )
             
-                if score > max_score:
-                    to_add = list()
-                    max_score = score
+            for current_ymer, locs in ymer_loc_dict.iteritems(): 
+                # calculate the score of this ymer
+                if len(locs) > max_score:
+                    max_score = len(locs)
+                    to_add=[current_ymer]
+                elif len(locs) == max_score:
                     to_add.append( current_ymer )
-                    ymer_xmers = [subset_ymer]
-                elif score == max_score:
-                    to_add.append( current_ymer )
-                    ymer_xmers.append(subset_ymer)
 
-            random_index = random.choice( range( len( to_add ) ) )
-            oligo_to_remove = to_add[ random_index ]
-            chosen_xmers = ymer_xmers[ random_index ]
-    #        array_xmers.update(chosen_xmers)
-            for each in chosen_xmers:
-                array_xmers[each] = array_xmers.get(each, 0)+1
-
-            # subtract from the score of each xmer within the chosen ymer
-            for item in chosen_xmers:
-                if item in xmer_seq_dict:
-                # We dont' want negative scores
-                    if xmer_seq_dict[ item ][ 0 ] > 0:
-                        xmer_seq_dict[ item ][ 0 ] -= 1
-                else: print ( "%s - not found in xmer dict!!!" % (item) )
-
-            iter_count += 1
-
-            if len( ymer_seq_dict ) == 0 or max_score <= 0:
+            #Terminate the while loop if any of these conditions are met
+            if len( ymer_loc_dict ) == 0 or max_score <= 0 or len(array_xmers)/float(len(xmer_seq_dict))>=options.minXmerCov:
+                total_ymers = len(ymer_loc_dict)
                 print ( "Final design includes %d %d-mers (%.1f%% of total) " % (len(array_design), options.YmerWindowSize, (len(array_design)/float(total_ymers))*100) )
-    #            average_redundancy = sum( xmer_seq_dict[ item ][ 0 ] for item in xmer_seq_dict ) / len( xmer_seq_dict )
                 print( "%d unique %d-mers in final %d-mers (%.2f%% of total)" % (len(array_xmers), options.XmerWindowSize, options.YmerWindowSize, (float(len(array_xmers))/len(xmer_seq_dict))*100))
+                average_redundancy = sum(array_xmers.values()) / len(xmer_seq_dict)
                 print( "Average redundancy of %d-mers in %d-mers: %.2f" % (options.XmerWindowSize, options.YmerWindowSize, sum(array_xmers.values())/float(len(array_xmers))))
+
+                #To log info about the best iteration
                 if len(array_design)<min_ymers:
                     min_ymers = len(array_design)
                     best_xmer_seq_dict = xmer_seq_dict
@@ -98,22 +83,30 @@ def main():
                     best_array_design = array_design
                     del(array_design)
                 break
-        
 
-            try:
-                array_design[ oligo_to_remove ] = ymer_seq_dict[ oligo_to_remove ]
-                del ymer_seq_dict[ oligo_to_remove ]
-            except KeyError:
-                continue
+            #Randomly choose a ymer from the list of ymers with equal coverage, get info and remove from ymer dict
+            oligo_to_remove = to_add[random.choice(range(len(to_add)))]
+            covered_locs = ymer_loc_dict[oligo_to_remove]
+            del(ymer_loc_dict[oligo_to_remove])
+            
+            #Add info about the contained xmers to the array_xmer dict
+            these_xmers = oligo.subset_lists_iter('', oligo_to_remove, options.XmerWindowSize, 1)
+            for x in these_xmers:
+                array_xmers[x] = array_xmers.get(x,0)+1
+            
+            #Remove covered xmer locations from the remaining ymers
+            for k in ymer_loc_dict.keys():
+                ymer_loc_dict[k] = ymer_loc_dict[k].difference(covered_locs)
+            
+            iter_count += 1
+            array_design[oligo_to_remove] = ymer_name_dict[ oligo_to_remove ]
 
-            if not iter_count % 250:
+            if not iter_count % 100:
                 print( "Current Iteration: " + str( iter_count ) ) 
-    #            print( "Number of output ymers: " + str( len( array_design ) ) )
-                print( "Current xmer dictionary score: " + str( sum( item[ 0 ] for item in xmer_seq_dict.values() ) ) )
+#                print( "Number of output ymers: %d" % len(array_design))
+                print( "Current max score: %d" % (max_score))
 
-
-
-    write_outputs( best_xmer_seq_dict, options.outPut )
+#    write_outputs( best_xmer_seq_dict, options.outPut )
 
     names = []
     sequences = []
@@ -126,26 +119,26 @@ def main():
     oligo.write_fastas( names, sequences, output_name=options.outPut + "_R" + str( options.redundancy ) + ".fasta" ) 
 
 
-def calculate_score( ymer, comparison_dict, window_size, step_size ):
-    """
-        Calculates the score of a ymer
-    """
-    name, subset_ymer = oligo.subset_lists_iter( "", ymer, window_size, step_size )
-    total = 0
-    for current_ymer in subset_ymer:
-       if current_ymer in comparison_dict and isinstance( comparison_dict[ current_ymer ], list ):
-           total +=  comparison_dict[ current_ymer ][ 0 ] 
-    return total, subset_ymer
-    
-def write_outputs( seq_dict, out_file ):
-    """
-        Writes tab delimited key-value pairs to specified output file
-        Each line consists of key \t value  
-    """
-    file = open( out_file, 'w+' )
-    for xmer, score in seq_dict.items():
-        file.write( xmer + '\t' + str( score[ 0 ] ) + '\n' )
-    file.close()
+# def calculate_score( ymer, comparison_dict, window_size, step_size ):
+#     """
+#         Calculates the score of a ymer
+#     """
+#     name, subset_ymer = oligo.subset_lists_iter( "", ymer, window_size, step_size )
+#     total = 0
+#     for current_ymer in subset_ymer:
+#        if current_ymer in comparison_dict and isinstance( comparison_dict[ current_ymer ], list ):
+#            total +=  comparison_dict[ current_ymer ][ 0 ] 
+#     return total, subset_ymer
+#     
+# def write_outputs( seq_dict, out_file ):
+#     """
+#         Writes tab delimited key-value pairs to specified output file
+#         Each line consists of key \t value  
+#     """
+#     file = open( out_file, 'w+' )
+#     for xmer, score in seq_dict.items():
+#         file.write( xmer + '\t' + str( score[ 0 ] ) + '\n' )
+#     file.close()
                 
 
 
@@ -174,10 +167,14 @@ def add_program_options( option_parser ):
 
    option_parser.add_option( '-i', '--iterations', type = 'int', default = 1, help = "Number of independent iterations to run. The result with the fewest oligos will be output [1]" )
 
+
    option_parser.add_option( '--stepSize', type = 'int', default = 1, help = (
       "Step size to move over after each subset of windowSize characters has been read [1]"
       )
       )
+
+   option_parser.add_option( '-c', '--minXmerCov', type = 'float', default = 1, help = "Minimum proportion of total xmers that need to be covered in design for process to terminate [1]" )
+
    option_parser.add_option( '-l', '--minLength', type = 'int', help = (
       "Minimum length of concurrent non-dash characters that must be present in order for "
       "the sequence to be considered valid, sequences with a maximum length of concurrent non-dash "

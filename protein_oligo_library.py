@@ -199,21 +199,21 @@ def append_suffix( string, start, end ):
    return "%s_%s_%s" % ( string, str( start ), str( end ) ) 
 
 
-def subset_lists_iter( name, sequence, window_size, step_size ):
-    new_names = []
-    new_seqs = []
+def subset_lists_iter( index, sequence, window_size, step_size ):
+    xmer_dict={}
 
     start = 0
     end = window_size
 
     while end <= len( sequence ):
-       new_seqs.append( sequence[ start : end ] )
-       new_names.append( append_suffix( name, start + 1, end ) )
+        xmer = sequence[start:end]
+        if xmer in xmer_dict: xmer_dict[xmer].append(append_suffix( str(index), start + 1, end ))
+        else: xmer_dict[xmer] = [append_suffix( str(index), start + 1, end )]
 
-       start += step_size
-       end = start + step_size + window_size - 1
+        start += step_size
+        end = start + step_size + window_size - 1
 
-    return new_names, new_seqs
+    return xmer_dict
 
 def subset_lists( name, sequence, window_size, step_size ):
    """
@@ -246,5 +246,10 @@ def subset_lists_helper( name, sequence, name_arr, seq_arr, window_size, step_si
    
 
 
-            
+def component_xmer_locs(ymer, xdict, xmer_size, step_size):
+    xmer_locs = []
+    ymer_xdict = subset_lists_iter( '', ymer, xmer_size, step_size)
+    for each in ymer_xdict.keys():
+        xmer_locs += xdict[each]
+    return set(xmer_locs)
     
