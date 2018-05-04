@@ -25,14 +25,14 @@ def main():
         # create list of Xmer sequences
         for i in range( len( sequences ) ):
             xdict = oligo.subset_lists_iter( i, sequences[i], options.XmerWindowSize, options.stepSize )
-            for x, locs in xdict.iteritems():
+            for x, locs in xdict.items():
                 #????? Is it appropraite to use the same minLength and percentValid for xmers and ymers????
                 if oligo.is_valid_sequence( x, options.minLength, options.percentValid ):
                     if x in xmer_seq_dict: 
                         xmer_seq_dict[x].update(locs)
                     else: xmer_seq_dict[x] = set(locs)
 
-        print "xmer_dict done!"
+        print( "xmer_dict done!" )
 
         # create dict of Ymer sequences
         ymer_name_dict = {} 
@@ -43,12 +43,12 @@ def main():
             ydict = oligo.subset_lists_iter( names[i], sequences[i], options.YmerWindowSize, options.stepSize )
 
             #For each ymer, break into xmers and record locations of those ymers
-            for y, locs in ydict.iteritems():
+            for y, locs in ydict.items():
                 if y not in ymer_loc_dict and oligo.is_valid_sequence( y, options.minLength, options.percentValid ):
                     ymer_name_dict[y] = locs[0]
                     ymer_loc_dict[y] = oligo.component_xmer_locs(y, xmer_seq_dict, options.XmerWindowSize, options.stepSize)
 
-        print "ymer_dict done!"
+        print( "ymer_dict done!" )
 
         array_design = {}
         array_xmers = {}
@@ -59,7 +59,7 @@ def main():
             #reset max score at the beginning of each iteration
             max_score = 0
             
-            for current_ymer, locs in ymer_loc_dict.iteritems(): 
+            for current_ymer, locs in ymer_loc_dict.items(): 
                 # calculate the score of this ymer
                 if len(locs) > max_score:
                     max_score = len(locs)
